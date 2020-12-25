@@ -13,6 +13,19 @@ type PrivateKey struct {
 	D *big.Int
 }
 
+func (pubKey *PublicKey) createPoint() *ECPoint {
+	return &ECPoint{
+		X: &ECFieldElement{
+			Num: pubKey.X,
+			Q:   sm2Curve.P,
+		},
+		Y: &ECFieldElement{
+			Num: pubKey.Y,
+			Q:   sm2Curve.P,
+		},
+	}
+}
+
 func GenerateKey() (priKey *PrivateKey, err error) {
 	// 产生随机数D，作为私钥
 	d := getRandomD()
@@ -56,5 +69,33 @@ func SignHashPkcs1(priKey *PrivateKey, hashBytes []byte) (signBytes []byte, err 
 	signBytes = make([]byte, 64)
 	copy(signBytes[:32], R.Bytes())
 	copy(signBytes[32:], S.Bytes())
+	return
+}
+
+func VerifySignByHash(pubKey *PublicKey, hashBytes []byte, signBytes []byte) (pass bool, err error) {
+	R := new(big.Int).SetBytes(signBytes[:32])
+	S := new(big.Int).SetBytes(signBytes[32:])
+	// 判断签名R、S的范围是否正确，否则验签失败
+	if R.Cmp(constant.BigIntOne) < 0 || R.Cmp(sm2Curve.N) >= 0 ||
+		S.Cmp(constant.BigIntOne) < 0 || S.Cmp(sm2Curve.N) >= 0 {
+		pass = false
+		return
+	}
+	// 如果t = [(R+S) mod n] == 0,验签失败
+	RaddS := new(big.Int).Add(R, S)
+	if RaddS.Mod(RaddS, sm2Curve.N).Cmp(constant.BigIntZero) == 0 {
+		pass = false
+		return
+	}
+	// 计算(x,y) = [S]G + [t]Pa
+	Pa := pubKey.createPoint()
+	Point := GBasePoint.Multiply(S).Add(Pa.Multiply(RaddS))
+	// 计算R'和R是否相等
+	EFromHash := new(big.Int).SetBytes(hashBytes)
+	Rget := EFromHash.Add(EFromHash, Point.X.Num) //R'=(e+x) mod n
+	Rget = Rget.Mod(Rget, sm2Curve.N)
+	if Rget.Cmp(R) == 0 {
+		pass = true
+	}
 	return
 }
