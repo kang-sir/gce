@@ -2,6 +2,7 @@ package sm3
 
 import (
 	"encoding/binary"
+	"hash"
 	"log"
 )
 
@@ -12,6 +13,12 @@ type SM3 struct {
 	msgBitLen uint64
 	// 剩余的未处理的字节
 	unHandledMsg []byte
+}
+
+func New() hash.Hash {
+	sm3 := new(SM3)
+	sm3.Reset()
+	return sm3
 }
 
 func (sm3 *SM3) Write(msg []byte) (n int, err error) {

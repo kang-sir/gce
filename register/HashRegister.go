@@ -3,6 +3,7 @@ package register
 import (
 	"crypto"
 	"errors"
+	"gce/crypto/sm3"
 	"hash"
 )
 
@@ -16,7 +17,7 @@ func init() {
 	hashFuncMap["SHA256"] = crypto.SHA256.New
 	hashFuncMap["SHA384"] = crypto.SHA384.New
 	hashFuncMap["SHA512"] = crypto.SHA512.New
-	hashFuncMap["SM3"] = crypto.SHA1.New
+	hashFuncMap["SM3"] = sm3.New
 }
 
 func HashFuncRegister(name string, hashFunc func() hash.Hash) (err error) {

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"gce/crypto/sm2"
+	"gce/crypto/sm3"
 	"math/big"
 )
 
@@ -25,7 +27,13 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(key.PublicKey.X)
-	fmt.Println(key.PublicKey.Y)
-	fmt.Println(key.D)
+	fmt.Println(base64.StdEncoding.EncodeToString(key.X.Bytes()))
+	fmt.Println(base64.StdEncoding.EncodeToString(key.Y.Bytes()))
+	hash := sm3.New().Sum([]byte("abc"))
+	pkcs1, err := sm2.SignHashPkcs1(key, hash)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(base64.StdEncoding.EncodeToString(pkcs1))
+
 }
