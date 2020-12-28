@@ -37,7 +37,7 @@ func (sm3 *SM3) Write(msg []byte) (n int, err error) {
 	for i := 0; i < needDealMsgLen; i += sm3.BlockSize() {
 		tmpBlock := allMsg[i : i+sm3.BlockSize()]
 		// 压缩数据，计算nextIV
-		sm3.digest, err = CF(sm3.digest, tmpBlock)
+		sm3.digest, err = cf(sm3.digest, tmpBlock)
 		if err != nil {
 			return
 		}
@@ -50,7 +50,7 @@ func (sm3 *SM3) Sum(msg []byte) []byte {
 	sm3.Write(msg)
 	// 处理未处理的消息
 	var err error
-	paddingDealMsg := Padding(sm3.unHandledMsg, sm3.msgBitLen)
+	paddingDealMsg := padding(sm3.unHandledMsg, sm3.msgBitLen)
 	sm3.unHandledMsg = []byte{}
 	// 进行最终数据的处理
 	needDealMsgLen := len(paddingDealMsg)
@@ -58,7 +58,7 @@ func (sm3 *SM3) Sum(msg []byte) []byte {
 	for i := 0; i < needDealMsgLen; i += sm3.BlockSize() {
 		tmpBlock := paddingDealMsg[i : i+sm3.BlockSize()]
 		// 压缩数据，计算nextIV
-		sm3.digest, err = CF(sm3.digest, tmpBlock)
+		sm3.digest, err = cf(sm3.digest, tmpBlock)
 		if err != nil {
 			log.Fatalf("SM3 error，compute paddingMsg error:%s", err)
 			return []byte{}
