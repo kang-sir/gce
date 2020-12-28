@@ -36,4 +36,23 @@ func main() {
 	}
 	fmt.Println(base64.StdEncoding.EncodeToString(pkcs1))
 
+	hash = sm3.New().Sum([]byte("abc"))
+	res, err := sm2.VerifySignByHash(&key.PublicKey, hash, pkcs1)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("验签结果：", res)
+
+	encrypt, err := sm2.Encrypt(&key.PublicKey, []byte("123测试数据"))
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("加密结果：", base64.StdEncoding.EncodeToString(encrypt))
+
+	decrypt, err := sm2.Decrypt(key, encrypt)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("解密结果：", string(decrypt))
+
 }

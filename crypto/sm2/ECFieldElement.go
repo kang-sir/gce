@@ -5,64 +5,75 @@ import (
 	"math/big"
 )
 
-var ECFieldElementThree *ECFieldElement
-var ECFieldElementTwo *ECFieldElement
-var ECFieldElementA *ECFieldElement
-var ECFieldElementGx *ECFieldElement
-var ECFieldElementGy *ECFieldElement
+var ecFieldElementThree *ecFieldElement
+var ecFieldElementTwo *ecFieldElement
+var ecFieldElementA *ecFieldElement
+var ecFieldElementB *ecFieldElement
+var ecFieldElementGx *ecFieldElement
+var ecFieldElementGy *ecFieldElement
 
-type ECFieldElement struct {
+type ecFieldElement struct {
 	Num, Q *big.Int
 }
 
 func initECFieldElement(sm2Curve sm2P256Curve) {
-	ECFieldElementThree = &ECFieldElement{Num: constant.BigIntThree, Q: sm2Curve.P}
-	ECFieldElementTwo = &ECFieldElement{Num: constant.BigIntTwo, Q: sm2Curve.P}
-	ECFieldElementA = &ECFieldElement{Num: sm2Curve.A, Q: sm2Curve.P}
-	ECFieldElementGx = &ECFieldElement{Num: sm2Curve.Gx, Q: sm2Curve.P}
-	ECFieldElementGy = &ECFieldElement{Num: sm2Curve.Gy, Q: sm2Curve.P}
+	ecFieldElementThree = &ecFieldElement{Num: constant.BigIntThree, Q: sm2Curve.P}
+	ecFieldElementTwo = &ecFieldElement{Num: constant.BigIntTwo, Q: sm2Curve.P}
+	ecFieldElementA = &ecFieldElement{Num: sm2Curve.A, Q: sm2Curve.P}
+	ecFieldElementB = &ecFieldElement{Num: sm2Curve.B, Q: sm2Curve.P}
+	ecFieldElementGx = &ecFieldElement{Num: sm2Curve.Gx, Q: sm2Curve.P}
+	ecFieldElementGy = &ecFieldElement{Num: sm2Curve.Gy, Q: sm2Curve.P}
 }
 
-func (field *ECFieldElement) equals(fieldB *ECFieldElement) bool {
+func (field *ecFieldElement) GetNumBytes32() []byte {
+	numBytes := field.Num.Bytes()
+	numLen := len(numBytes)
+	if numLen < 32 {
+		numBytes = append(make([]byte, 32-numLen), numBytes...)
+	}
+	return numBytes
+}
+
+func (field *ecFieldElement) equals(fieldB *ecFieldElement) bool {
 	if field.Num.Cmp(fieldB.Num) == 0 {
 		return true
 	}
 	return false
 }
 
-func (field *ECFieldElement) Add(fieldB *ECFieldElement) *ECFieldElement {
+func (field *ecFieldElement) Add(fieldB *ecFieldElement) *ecFieldElement {
 	addRes := new(big.Int)
 	addRes.Add(field.Num, fieldB.Num)
 	addRes.Mod(addRes, field.Q)
-	return &ECFieldElement{Num: addRes, Q: field.Q}
+	return &ecFieldElement{Num: addRes, Q: field.Q}
 }
 
-func (field *ECFieldElement) Subtract(fieldB *ECFieldElement) *ECFieldElement {
+func (field *ecFieldElement) Subtract(fieldB *ecFieldElement) *ecFieldElement {
 	subRes := new(big.Int)
 	subRes.Sub(field.Num, fieldB.Num)
 	subRes.Mod(subRes, field.Q)
-	return &ECFieldElement{Num: subRes, Q: field.Q}
+	return &ecFieldElement{Num: subRes, Q: field.Q}
 }
 
-func (field *ECFieldElement) Multiply(fieldB *ECFieldElement) *ECFieldElement {
+func (field *ecFieldElement) Multiply(fieldB *ecFieldElement) *ecFieldElement {
 	mulRes := new(big.Int)
 	mulRes.Mul(field.Num, fieldB.Num)
 	mulRes.Mod(mulRes, field.Q)
-	return &ECFieldElement{Num: mulRes, Q: field.Q}
+	return &ecFieldElement{Num: mulRes, Q: field.Q}
 }
 
-func (field *ECFieldElement) Divide(fieldB *ECFieldElement) *ECFieldElement {
+func (field *ecFieldElement) Divide(fieldB *ecFieldElement) *ecFieldElement {
 	bModQInverse := new(big.Int)
 	bModQInverse.ModInverse(fieldB.Num, field.Q)
 	divRes := new(big.Int)
 	divRes.Mul(field.Num, bModQInverse)
 	divRes.Mod(divRes, field.Q)
-	return &ECFieldElement{Num: divRes, Q: field.Q}
+	return &ecFieldElement{Num: divRes, Q: field.Q}
 }
 
-func (field *ECFieldElement) Square() *ECFieldElement {
+func (field *ecFieldElement) Square() *ecFieldElement {
 	squareVal := new(big.Int)
 	squareVal.Mul(field.Num, field.Num)
 	squareVal = squareVal.Mod(squareVal, field.Q)
-	return &ECFieldElement{Num: squareVal, Q: field.Q}
+	return &ecFieldElement{Num: squareVal, Q: field.Q}
 }
