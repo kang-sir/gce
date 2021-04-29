@@ -21,7 +21,7 @@ func (sm4 *SM4) Encrypt(dst, src []byte) {
 	if len(src) != blockSize {
 		panic("SM4 encrypt error, plain len is not 16")
 	}
-	cipherBlock := ProcessBlock(src, sm4.keyBytes, true)
+	cipherBlock := processBlock(src, sm4.keyBytes, true)
 	copy(dst, cipherBlock)
 }
 
@@ -29,6 +29,6 @@ func (sm4 *SM4) Decrypt(dst, src []byte) {
 	if len(src) != blockSize {
 		panic("SM4 encrypt error, cipher block len is not 16")
 	}
-	cipherBlock := ProcessBlock(src, sm4.keyBytes, false)
+	cipherBlock := processBlock(src, sm4.keyBytes, false)
 	copy(dst, cipherBlock)
 }

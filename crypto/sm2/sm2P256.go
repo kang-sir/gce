@@ -4,6 +4,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"gce/constant"
+	"gce/crypto"
 	"gce/crypto/sm3"
 	"gce/util/num"
 	"io"
@@ -11,8 +12,6 @@ import (
 )
 
 var sm2Curve sm2P256Curve
-
-var userIdDef = []byte("1234567812345678")
 
 type sm2P256Curve struct {
 	// 曲线参数
@@ -26,12 +25,12 @@ type sm2P256Curve struct {
 // 初始化椭圆曲线参数信息（GM定义）
 func init() {
 	sm2Curve.CurveParams = &elliptic.CurveParams{Name: "SM2P256-Curve"}
-	sm2Curve.P, _ = new(big.Int).SetString("FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFF", 16)
-	sm2Curve.N, _ = new(big.Int).SetString("FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFF7203DF6B21C6052B53BBF40939D54123", 16)
-	sm2Curve.Gx, _ = new(big.Int).SetString("32c4ae2c1f1981195f9904466a39c9948fe30bbff2660be1715a4589334c74c7", 16)
-	sm2Curve.Gy, _ = new(big.Int).SetString("bc3736a2f4f6779c59bdcee36b692153d0a9877cc62a474002df32e52139f0a0", 16)
-	sm2Curve.A, _ = new(big.Int).SetString("FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFC", 16)
-	sm2Curve.B, _ = new(big.Int).SetString("28E9FA9E9D9F5E344D5A9E4BCF6509A7F39789F515AB8F92DDBCBD414D940E93", 16)
+	sm2Curve.P = crypto.P
+	sm2Curve.N = crypto.N
+	sm2Curve.Gx = crypto.Gx
+	sm2Curve.Gy = crypto.Gy
+	sm2Curve.A = crypto.A
+	sm2Curve.B = crypto.B
 	sm2Curve.BitSize = 256
 	sm2Curve.h = new(big.Int).Div(sm2Curve.P, sm2Curve.N)
 	// 初始化常量
@@ -52,33 +51,8 @@ func getRandomD() *big.Int {
 	return d
 }
 
-func getZA(pubKey *PublicKey, userId []byte) []byte {
-	if userId == nil || len(userId) == 0 {
-		userId = userIdDef
-	}
-	IDBitLen := len(userId) * 8
-	entLenBytes := num.Uint16T0Bytes(uint16(IDBitLen))
-	var finalOriBytes []byte
-	// ENTLa
-	finalOriBytes = append(finalOriBytes, entLenBytes...)
-	// IDa
-	finalOriBytes = append(finalOriBytes, userId...)
-	// a,b
-	finalOriBytes = append(finalOriBytes, sm2Curve.A.Bytes()...)
-	finalOriBytes = append(finalOriBytes, sm2Curve.B.Bytes()...)
-	// Gx,Gy
-	finalOriBytes = append(finalOriBytes, sm2Curve.Gx.Bytes()...)
-	finalOriBytes = append(finalOriBytes, sm2Curve.Gy.Bytes()...)
-	// Ax,Ay(防止Ax,Ay的高位为0的情况)
-	xZero := make([]byte, 32-len(pubKey.X.Bytes()))
-	finalOriBytes = append(finalOriBytes, xZero...)
-	finalOriBytes = append(finalOriBytes, pubKey.X.Bytes()...)
-	yZero := make([]byte, 32-len(pubKey.Y.Bytes()))
-	finalOriBytes = append(finalOriBytes, yZero...)
-	finalOriBytes = append(finalOriBytes, pubKey.Y.Bytes()...)
-	// 对数据进行Hash，返回ZA
-	sm3HashFunc := sm3.New()
-	return sm3HashFunc.Sum(finalOriBytes)
+func GetCurve() sm2P256Curve {
+	return sm2Curve
 }
 
 func KDF(Z []byte, msgLen int) (K []byte) {

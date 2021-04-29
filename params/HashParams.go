@@ -7,5 +7,5 @@ type HashAlg struct {
 	AlgName constant.HashAlgName
 
 	// 摘要算法参数
-	AlgParam map[string]interface{}
+	AlgParam interface{}
 }

@@ -23,7 +23,7 @@ func TestSM4(t *testing.T) {
 	})
 
 	t.Run("SM4DecryptTest", func(t *testing.T) {
-		// SM4加密
+		// SM4解密
 		sm4 := NewCipher(symKey)
 		dst := make([]byte, 16)
 		sm4.Decrypt(dst, cipherBlock)

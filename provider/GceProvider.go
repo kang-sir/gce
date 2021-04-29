@@ -6,9 +6,9 @@ import (
 )
 
 type GceProvider interface {
-	HashData(oriDataBytes []byte, alg params.HashAlg)
+	HashData(oriDataBytes []byte, alg params.HashAlg) (hashBytes []byte, err error)
 
-	SignHash(hashDataBytes []byte, priKey crypto.PrivateKey)
+	SignHash(priKey crypto.PrivateKey, hashDataBytes []byte) (signBytes []byte, err error)
 
-	VerifySignByHash(hashDataBytes []byte, pubKey crypto.PublicKey)
+	VerifySignByHash(pubKey crypto.PublicKey, hashDataBytes []byte, signBytes []byte) (verRes bool, err error)
 }

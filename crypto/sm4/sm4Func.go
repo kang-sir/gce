@@ -45,7 +45,7 @@ func leftCircle(x uint32, i int) uint32 {
 	return (x << (i % 32)) | (x >> (32 - (i % 32)))
 }
 
-// 线性变换函数L
+// 加解密【线性变换函数L】
 func l(B uint32) (C uint32) {
 	C = B ^ leftCircle(B, 2) ^ leftCircle(B, 10) ^ leftCircle(B, 18) ^ leftCircle(B, 24)
 	return
@@ -83,7 +83,7 @@ func keyExtend(mk []uint32) (rk []uint32) {
 }
 
 // SM4加密块
-func ProcessBlock(block []byte, key []byte, forEncrypt bool) (cipher []byte) {
+func processBlock(block []byte, key []byte, forEncrypt bool) (cipher []byte) {
 	// 将密钥转成MK
 	mk := make([]uint32, 4)
 	xArr := make([]uint32, 36)

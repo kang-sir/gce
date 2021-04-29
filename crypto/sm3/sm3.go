@@ -2,8 +2,11 @@ package sm3
 
 import (
 	"encoding/binary"
+	"gce/crypto"
+	"gce/util/num"
 	"hash"
 	"log"
+	"math/big"
 )
 
 type SM3 struct {
@@ -44,6 +47,36 @@ func (sm3 *SM3) Write(msg []byte) (n int, err error) {
 	}
 	n = needDealMsgLen
 	return
+}
+
+func (sm3 *SM3) AddId(x big.Int, y big.Int, userId []byte) {
+	if userId == nil || len(userId) == 0 {
+		userId = crypto.DefUserId
+	}
+	IDBitLen := len(userId) * 8
+	entLenBytes := num.Uint16T0Bytes(uint16(IDBitLen))
+	var finalOriBytes []byte
+	// ENTLa
+	finalOriBytes = append(finalOriBytes, entLenBytes...)
+	// IDa
+	finalOriBytes = append(finalOriBytes, userId...)
+	// a,b
+	finalOriBytes = append(finalOriBytes, crypto.A.Bytes()...)
+	finalOriBytes = append(finalOriBytes, crypto.B.Bytes()...)
+	// Gx,Gy
+	finalOriBytes = append(finalOriBytes, crypto.Gx.Bytes()...)
+	finalOriBytes = append(finalOriBytes, crypto.Gy.Bytes()...)
+	// Ax,Ay(防止Ax,Ay的高位为0的情况)
+	xZero := make([]byte, 32-len(x.Bytes()))
+	finalOriBytes = append(finalOriBytes, xZero...)
+	finalOriBytes = append(finalOriBytes, x.Bytes()...)
+	yZero := make([]byte, 32-len(y.Bytes()))
+	finalOriBytes = append(finalOriBytes, yZero...)
+	finalOriBytes = append(finalOriBytes, y.Bytes()...)
+	// 对数据进行Hash，返回ZA
+	sm3HashFunc := New()
+	ZA := sm3HashFunc.Sum(finalOriBytes)
+	sm3.Write(ZA)
 }
 
 func (sm3 *SM3) Sum(msg []byte) []byte {
