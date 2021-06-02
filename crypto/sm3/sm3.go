@@ -49,7 +49,7 @@ func (sm3 *SM3) Write(msg []byte) (n int, err error) {
 	return
 }
 
-func (sm3 *SM3) AddId(x big.Int, y big.Int, userId []byte) {
+func GetZA(x big.Int, y big.Int, userId []byte) []byte {
 	if userId == nil || len(userId) == 0 {
 		userId = crypto.DefUserId
 	}
@@ -75,7 +75,11 @@ func (sm3 *SM3) AddId(x big.Int, y big.Int, userId []byte) {
 	finalOriBytes = append(finalOriBytes, y.Bytes()...)
 	// 对数据进行Hash，返回ZA
 	sm3HashFunc := New()
-	ZA := sm3HashFunc.Sum(finalOriBytes)
+	return sm3HashFunc.Sum(finalOriBytes)
+}
+
+func (sm3 *SM3) AddId(x big.Int, y big.Int, userId []byte) {
+	ZA := GetZA(x, y, userId)
 	sm3.Write(ZA)
 }
 

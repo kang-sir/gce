@@ -20,9 +20,8 @@ func (provider *GoSoftProvider) HashData(oriDataBytes []byte, alg params.HashAlg
 	hashFunc := register.GetHashFunc(string(alg.AlgName))
 	hash := hashFunc()
 	if param, ok := alg.AlgParam.(params.SM3Param); ok {
-		if sm3Func, ok := hash.(*sm3.SM3); ok {
-			sm3Func.AddId(*param.PubKey.X, *param.PubKey.Y, param.UserId)
-		}
+		ZA := sm3.GetZA(*param.PubKey.X, *param.PubKey.Y, param.UserId)
+		hash.Write(ZA)
 	}
 	hashBytes = hash.Sum(oriDataBytes)
 	return
