@@ -4,8 +4,8 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"gce/constant"
-	"gce/crypto"
-	"gce/crypto/sm3"
+	"gce/crypt"
+	"gce/crypt/sm3"
 	"gce/util/num"
 	"io"
 	"math/big"
@@ -25,12 +25,12 @@ type sm2P256Curve struct {
 // 初始化椭圆曲线参数信息（GM定义）
 func init() {
 	sm2Curve.CurveParams = &elliptic.CurveParams{Name: "SM2P256-Curve"}
-	sm2Curve.P = crypto.P
-	sm2Curve.N = crypto.N
-	sm2Curve.Gx = crypto.Gx
-	sm2Curve.Gy = crypto.Gy
-	sm2Curve.A = crypto.A
-	sm2Curve.B = crypto.B
+	sm2Curve.P = crypt.P
+	sm2Curve.N = crypt.N
+	sm2Curve.Gx = crypt.Gx
+	sm2Curve.Gy = crypt.Gy
+	sm2Curve.A = crypt.A
+	sm2Curve.B = crypt.B
 	sm2Curve.BitSize = 256
 	sm2Curve.h = new(big.Int).Div(sm2Curve.P, sm2Curve.N)
 	// 初始化常量

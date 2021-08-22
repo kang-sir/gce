@@ -2,7 +2,7 @@ package sm3
 
 import (
 	"encoding/binary"
-	"gce/crypto"
+	"gce/crypt"
 	"gce/util/num"
 	"hash"
 	"log"
@@ -51,7 +51,7 @@ func (sm3 *SM3) Write(msg []byte) (n int, err error) {
 
 func GetZA(x big.Int, y big.Int, userId []byte) []byte {
 	if userId == nil || len(userId) == 0 {
-		userId = crypto.DefUserId
+		userId = crypt.DefUserId
 	}
 	IDBitLen := len(userId) * 8
 	entLenBytes := num.Uint16T0Bytes(uint16(IDBitLen))
@@ -61,11 +61,11 @@ func GetZA(x big.Int, y big.Int, userId []byte) []byte {
 	// IDa
 	finalOriBytes = append(finalOriBytes, userId...)
 	// a,b
-	finalOriBytes = append(finalOriBytes, crypto.A.Bytes()...)
-	finalOriBytes = append(finalOriBytes, crypto.B.Bytes()...)
+	finalOriBytes = append(finalOriBytes, crypt.A.Bytes()...)
+	finalOriBytes = append(finalOriBytes, crypt.B.Bytes()...)
 	// Gx,Gy
-	finalOriBytes = append(finalOriBytes, crypto.Gx.Bytes()...)
-	finalOriBytes = append(finalOriBytes, crypto.Gy.Bytes()...)
+	finalOriBytes = append(finalOriBytes, crypt.Gx.Bytes()...)
+	finalOriBytes = append(finalOriBytes, crypt.Gy.Bytes()...)
 	// Ax,Ay(防止Ax,Ay的高位为0的情况)
 	xZero := make([]byte, 32-len(x.Bytes()))
 	finalOriBytes = append(finalOriBytes, xZero...)

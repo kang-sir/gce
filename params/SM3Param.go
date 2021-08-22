@@ -1,7 +1,7 @@
 package params
 
 import (
-	"gce/crypto/sm2"
+	"gce/crypt/sm2"
 )
 
 type SM3Param struct {

@@ -1,16 +1,18 @@
 package sm4
 
+import "crypto/cipher"
+
 const blockSize = 16
 
 type SM4 struct {
 	keyBytes []byte
 }
 
-func NewCipher(keyBytes []byte) *SM4 {
+func NewCipher(keyBytes []byte) (cipher.Block, error) {
 	if len(keyBytes) != blockSize {
 		panic("new SM4 Cipher error, key len is not 16")
 	}
-	return &SM4{keyBytes: keyBytes}
+	return &SM4{keyBytes: keyBytes}, nil
 }
 
 func (sm4 *SM4) BlockSize() int {

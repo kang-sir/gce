@@ -1,9 +1,11 @@
 package main
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"encoding/hex"
 	"fmt"
 	"gce/constant"
-	"gce/crypto/sm2"
 	"gce/params"
 	"gce/provider/soft"
 )
@@ -11,16 +13,13 @@ import (
 func main() {
 
 	provider := soft.GoSoftProvider{Name: "SOFT-GCE"}
-	key, err := sm2.GenerateKey()
+	key, err := rsa.GenerateKey(rand.Reader, 1024)
+	//key, err := sm2.GenerateKey()
 	if err != nil {
 		fmt.Println(err)
 	}
 	hashData, err := provider.HashData([]byte("123"), params.HashAlg{
-		AlgName: constant.SM3,
-		AlgParam: params.SM3Param{
-			PubKey: key.PublicKey,
-			UserId: []byte("1234567812345678"),
-		},
+		AlgName: constant.SHA256,
 	})
 	if err != nil {
 		fmt.Println(err)
@@ -36,4 +35,16 @@ func main() {
 		fmt.Println(err)
 	}
 	fmt.Println(verRes)
+
+	cipher, err := provider.PubKeyEncrypt(&key.PublicKey, []byte("123"))
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("私钥加密密文：" + hex.EncodeToString(cipher))
+
+	plain, err := provider.PriKeyDecrypt(key, cipher)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("私钥解密明文：" + string(plain))
 }

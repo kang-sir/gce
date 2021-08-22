@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"gce/constant"
-	"gce/crypto/sm3"
+	"gce/crypt/sm3"
 	"math/big"
 )
 
