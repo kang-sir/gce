@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
-	"gce/crypto/sm2"
-	"gce/crypto/sm3"
+	"gce/crypt/sm2"
+	"gce/crypt/sm3"
 	"math/big"
 )
 
